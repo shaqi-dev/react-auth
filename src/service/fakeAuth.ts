@@ -2,7 +2,7 @@ import type { AuthFormInput } from '../components/AuthForm/AuthForm';
 
 interface FakeAuthResponseType {
   status: number,
-  data: string,
+  errorMessage?: string | undefined,
 }
 
 const fakeUsersDB = [
@@ -16,18 +16,18 @@ const fakeUsersDB = [
 const fakeAuth = (data: AuthFormInput): FakeAuthResponseType => {
   const { login, password } = data;
   const filtered = fakeUsersDB.filter((user) => user.email === login);
-  const res = {
+  const res: FakeAuthResponseType = {
     status: 403,
-    data: 'Пользователя с таким логином не существует',
+    errorMessage: `Пользователя ${login} не существует`,
   };
 
   if (filtered.length > 0) {
     if (filtered[0].password === password) {
       res.status = 202;
-      res.data = 'Вошли успешно';
+      res.errorMessage = undefined;
     } else {
       res.status = 403;
-      res.data = 'Неверный пароль';
+      res.errorMessage = 'Вы ввели неверный пароль';
     }
   }
 

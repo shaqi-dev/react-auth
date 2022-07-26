@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import styled, { css } from 'styled-components';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, useFormState, SubmitHandler } from 'react-hook-form';
 import fakeAuthWithDelay from '../../service/fakeAuth';
 
 interface LabelProps {
@@ -19,7 +19,6 @@ export interface AuthFormInput {
 
 const Form = styled.form`
   width: 640px;
-  padding-top: 212px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -76,10 +75,8 @@ const TextField = styled.input<TextFieldProps>`
 `;
 
 const CheckboxInput = styled.input`
-  /* remove default styles */
   -webkit-appearance: none;
   appearance: none;
-  /* creating a custom design */
   width: 20px;
   height: 20px;
   border-radius: 4px;
@@ -138,16 +135,54 @@ const TextFieldErrorMsg = styled.span`
   color: #E26F6F;
 `;
 
+const ServerErrorNotify = styled.div`
+  margin-bottom: -15px;
+  width: 100%;
+  display: flex;
+  gap: 14px;
+  padding: 20px;
+  background-color: #F5E9E9;
+  border: 1px solid #E26F6F;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.7rem;
+
+  span {
+    &::before {
+      content: '!';
+      padding: 1px 8px 2px 8px;
+      display: inline-block;
+      font-size: 1.4rem;
+      background-color: #FFC8C8;
+      color: #E26F6F;
+      border-radius: 50%;
+      margin-right: 14px;
+    }
+  }
+`;
+
 const AuthForm: FC = () => {
-  const { register, formState: { errors, isSubmitting }, handleSubmit } = useForm<AuthFormInput>();
+  const { register, handleSubmit, control } = useForm<AuthFormInput>();
+  const { errors, isSubmitting } = useFormState<AuthFormInput>({ control });
+  const [serverError, setServerError] = useState({ status: false, message: '' });
+  const clientErrorEl = <TextFieldErrorMsg>Обязательное поле</TextFieldErrorMsg>;
+  const serverErrorEl = <ServerErrorNotify><span>{serverError.message}</span></ServerErrorNotify>;
+
   const onSubmit: SubmitHandler<AuthFormInput> = async (inputData) => {
-    const { status, data } = await fakeAuthWithDelay(inputData, 2000);
-    console.log(status, data);
+    const { status, errorMessage } = await fakeAuthWithDelay(inputData, 2000);
+    if (status > 400) {
+      setServerError({ status: true, message: errorMessage || 'Произошла ошибка при авторизации.' });
+    } else if (status > 200 && status < 300) {
+      if (serverError.status) {
+        setServerError({ status: false, message: '' });
+      }
+    }
   };
-  const requireErrorEl = <TextFieldErrorMsg>Обязательное поле</TextFieldErrorMsg>;
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
+      {serverError.status && serverErrorEl}
       <FieldsContainer>
         <Label htmlFor="auth-login-input">
           Логин
@@ -157,7 +192,7 @@ const AuthForm: FC = () => {
             clientError={errors.login?.type === 'required'}
             {...register('login', { required: true })}
           />
-          {errors.login?.type === 'required' && requireErrorEl}
+          {errors.login?.type === 'required' && clientErrorEl}
         </Label>
         <Label htmlFor="auth-password-input">
           Пароль
@@ -167,7 +202,7 @@ const AuthForm: FC = () => {
             clientError={errors.password?.type === 'required'}
             {...register('password', { required: true })}
           />
-          {errors.password?.type === 'required' && requireErrorEl}
+          {errors.password?.type === 'required' && clientErrorEl}
         </Label>
         <Label htmlFor="auth-save-password-checkbox" checkbox>
           <CheckboxInput

@@ -27,6 +27,8 @@ const LogoHeading = styled.h1`
 `;
 
 const Main = styled.main`
+  min-height: 760px;
+  justify-content: center;
   display: flex;
   flex-direction: column;
   align-items: center;
