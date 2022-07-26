@@ -209,7 +209,7 @@ const AuthForm: FC<AuthProps> = ({ setUser }) => {
             type="password"
             id="auth-password-input"
             clientError={errors.password?.type === 'required'}
-            autoComplete={checkboxInput ? 'current-password' : ''}
+            autoComplete={checkboxInput ? 'current-password' : 'off'}
             {...register('password', { required: true })}
           />
           {errors.password?.type === 'required' && clientErrorEl}
