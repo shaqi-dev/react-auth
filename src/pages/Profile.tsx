@@ -16,6 +16,10 @@ const RootContainer = styled.div`
 const Greeting = styled.p`
   font-size: 4rem;
   line-height: 4.8rem;
+
+  span {
+    font-weight: 700;
+  }
 `;
 
 const LogOutButton = styled.button`
@@ -42,7 +46,7 @@ const Profile: FC<ProfileProps> = ({ login, handleLogOut }) => (
     <Greeting>
       Здравствуйте,
       {' '}
-      {login ?? ''}
+      <span>{login ?? ''}</span>
     </Greeting>
     <LogOutButton type="button" onClick={handleLogOut}>
       Выйти
