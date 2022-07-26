@@ -1,13 +1,11 @@
-import React from 'react';
 import MainLayout from './components/MainLayout';
+import AuthForm from './components/AuthForm';
 import './App.css';
 
 const App = () => (
   <div className="App">
     <MainLayout>
-      <form>
-        <input type="text" />
-      </form>
+      <AuthForm />
     </MainLayout>
   </div>
 );

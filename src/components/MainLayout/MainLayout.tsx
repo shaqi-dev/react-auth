@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -27,7 +27,9 @@ const LogoHeading = styled.h1`
 `;
 
 const Main = styled.main`
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const MainLayout: FC<PropsWithChildren> = ({ children }) => (
