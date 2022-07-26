@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { useForm, useFormState, SubmitHandler } from 'react-hook-form';
 import fakeAuthWithDelay from '../../service/fakeAuth';
@@ -174,6 +174,8 @@ const AuthForm: FC<AuthProps> = ({ setUser }) => {
   const [serverError, setServerError] = useState({ status: false, message: '' });
   const clientErrorEl = <TextFieldErrorMsg>Обязательное поле</TextFieldErrorMsg>;
   const serverErrorEl = <ServerErrorNotify><span>{serverError.message}</span></ServerErrorNotify>;
+  const checkboxInput = useRef<HTMLInputElement | null>(null);
+  const { ref } = register('savePassword');
 
   const onSubmit: SubmitHandler<AuthFormInput> = async (inputData) => {
     const { status, errorMessage, data } = await fakeAuthWithDelay(inputData, 2000);
@@ -207,6 +209,7 @@ const AuthForm: FC<AuthProps> = ({ setUser }) => {
             type="password"
             id="auth-password-input"
             clientError={errors.password?.type === 'required'}
+            autoComplete={checkboxInput ? 'current-password' : ''}
             {...register('password', { required: true })}
           />
           {errors.password?.type === 'required' && clientErrorEl}
@@ -215,7 +218,10 @@ const AuthForm: FC<AuthProps> = ({ setUser }) => {
           <CheckboxInput
             type="checkbox"
             id="auth-save-password-checkbox"
-            {...register('savePassword')}
+            ref={(e) => {
+              ref(e);
+              checkboxInput.current = e;
+            }}
           />
           Запомнить пароль
         </Label>
