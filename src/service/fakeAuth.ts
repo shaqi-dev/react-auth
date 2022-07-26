@@ -3,6 +3,7 @@ import type { AuthFormInput } from '../components/AuthForm/AuthForm';
 interface FakeAuthResponseType {
   status: number,
   errorMessage?: string | undefined,
+  data: AuthFormInput
 }
 
 const fakeUsersDB = [
@@ -19,6 +20,7 @@ const fakeAuth = (data: AuthFormInput): FakeAuthResponseType => {
   const res: FakeAuthResponseType = {
     status: 403,
     errorMessage: `Пользователя ${login} не существует`,
+    data,
   };
 
   if (filtered.length > 0) {

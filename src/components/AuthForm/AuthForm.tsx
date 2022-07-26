@@ -2,6 +2,12 @@ import { FC, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useForm, useFormState, SubmitHandler } from 'react-hook-form';
 import fakeAuthWithDelay from '../../service/fakeAuth';
+import { currentUserData } from '../../App';
+
+interface AuthProps {
+  // eslint-disable-next-line no-unused-vars
+  setUser: (data: currentUserData) => void
+}
 
 interface LabelProps {
   readonly checkbox?: boolean;
@@ -162,7 +168,7 @@ const ServerErrorNotify = styled.div`
   }
 `;
 
-const AuthForm: FC = () => {
+const AuthForm: FC<AuthProps> = ({ setUser }) => {
   const { register, handleSubmit, control } = useForm<AuthFormInput>();
   const { errors, isSubmitting } = useFormState<AuthFormInput>({ control });
   const [serverError, setServerError] = useState({ status: false, message: '' });
@@ -170,13 +176,14 @@ const AuthForm: FC = () => {
   const serverErrorEl = <ServerErrorNotify><span>{serverError.message}</span></ServerErrorNotify>;
 
   const onSubmit: SubmitHandler<AuthFormInput> = async (inputData) => {
-    const { status, errorMessage } = await fakeAuthWithDelay(inputData, 2000);
+    const { status, errorMessage, data } = await fakeAuthWithDelay(inputData, 2000);
     if (status > 400) {
       setServerError({ status: true, message: errorMessage || 'Произошла ошибка при авторизации.' });
     } else if (status > 200 && status < 300) {
       if (serverError.status) {
         setServerError({ status: false, message: '' });
       }
+      setUser({ login: data.login, isLogged: true });
     }
   };
 
