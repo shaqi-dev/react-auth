@@ -1,13 +1,24 @@
 import { FC } from 'react';
 import styled, { css } from 'styled-components';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
 interface LabelProps {
   readonly checkbox?: boolean;
 }
 
+interface TextFieldProps {
+  readonly clientError?: boolean;
+}
+
+interface AuthFormInput {
+  login: string;
+  password: string;
+  savePassword: boolean;
+}
+
 const Form = styled.form`
   width: 640px;
-  margin-top: 212px;
+  padding-top: 212px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -36,7 +47,7 @@ const Label = styled.label<LabelProps>`
   `}
 `;
 
-const TextField = styled.input`
+const TextField = styled.input<TextFieldProps>`
   padding: 21px 20px 20px 20px;
   border: none;
   border-radius: 8px;
@@ -48,9 +59,19 @@ const TextField = styled.input`
   transition: all 80ms;
 
   &:focus {
-    outline: #4A67FF 3px solid;
+    outline: #4A67FF 1px solid;
     background-color: #f3f4ff;
   }
+
+  ${(props) => props.clientError && css`
+    outline: #E26F6F 1px solid;
+    color: #E26F6F;
+
+    &:focus {
+      outline: #E26F6F 1px solid;
+      background-color: #fff2f2;
+    }
+  `}
 `;
 
 const CheckboxInput = styled.input`
@@ -111,24 +132,51 @@ const SubmitButton = styled.input`
   }
 `;
 
-const AuthForm: FC = () => (
-  <Form>
-    <FieldsContainer>
-      <Label htmlFor="auth-login-input">
-        Логин
-        <TextField type="text" id="auth-login-input" />
-      </Label>
-      <Label htmlFor="auth-password-input">
-        Пароль
-        <TextField type="password" id="auth-password-input" />
-      </Label>
-      <Label htmlFor="auth-save-password-checkbox" checkbox>
-        <CheckboxInput type="checkbox" id="auth-save-password-checkbox" />
-        Запомнить пароль
-      </Label>
-    </FieldsContainer>
-    <SubmitButton type="submit" value="Войти" />
-  </Form>
-);
+const TextFieldErrorMsg = styled.span`
+  margin-top: -2px;
+  color: #E26F6F;
+`;
+
+const AuthForm: FC = () => {
+  const { register, formState: { errors }, handleSubmit } = useForm<AuthFormInput>();
+  const onSubmit: SubmitHandler<AuthFormInput> = (data) => console.log(data);
+  const requireErrorEl = <TextFieldErrorMsg>Обязательное поле</TextFieldErrorMsg>;
+
+  return (
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <FieldsContainer>
+        <Label htmlFor="auth-login-input">
+          Логин
+          <TextField
+            type="text"
+            id="auth-login-input"
+            clientError={errors.login?.type === 'required'}
+            {...register('login', { required: true })}
+          />
+          {errors.login?.type === 'required' && requireErrorEl}
+        </Label>
+        <Label htmlFor="auth-password-input">
+          Пароль
+          <TextField
+            type="password"
+            id="auth-password-input"
+            clientError={errors.password?.type === 'required'}
+            {...register('password', { required: true })}
+          />
+          {errors.password?.type === 'required' && requireErrorEl}
+        </Label>
+        <Label htmlFor="auth-save-password-checkbox" checkbox>
+          <CheckboxInput
+            type="checkbox"
+            id="auth-save-password-checkbox"
+            {...register('savePassword')}
+          />
+          Запомнить пароль
+        </Label>
+      </FieldsContainer>
+      <SubmitButton type="submit" value="Войти" />
+    </Form>
+  );
+};
 
 export default AuthForm;
