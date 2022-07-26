@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import styled, { css } from 'styled-components';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import fakeAuthWithDelay from '../../service/fakeAuth';
 
 interface LabelProps {
   readonly checkbox?: boolean;
@@ -10,7 +11,7 @@ interface TextFieldProps {
   readonly clientError?: boolean;
 }
 
-interface AuthFormInput {
+export interface AuthFormInput {
   login: string;
   password: string;
   savePassword: boolean;
@@ -138,8 +139,11 @@ const TextFieldErrorMsg = styled.span`
 `;
 
 const AuthForm: FC = () => {
-  const { register, formState: { errors }, handleSubmit } = useForm<AuthFormInput>();
-  const onSubmit: SubmitHandler<AuthFormInput> = (data) => console.log(data);
+  const { register, formState: { errors, isSubmitting }, handleSubmit } = useForm<AuthFormInput>();
+  const onSubmit: SubmitHandler<AuthFormInput> = async (inputData) => {
+    const { status, data } = await fakeAuthWithDelay(inputData, 2000);
+    console.log(status, data);
+  };
   const requireErrorEl = <TextFieldErrorMsg>Обязательное поле</TextFieldErrorMsg>;
 
   return (
@@ -174,7 +178,7 @@ const AuthForm: FC = () => {
           Запомнить пароль
         </Label>
       </FieldsContainer>
-      <SubmitButton type="submit" value="Войти" />
+      <SubmitButton type="submit" value="Войти" disabled={isSubmitting} />
     </Form>
   );
 };
