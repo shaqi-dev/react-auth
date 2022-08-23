@@ -8,6 +8,6 @@
 ## Deploy
 
 ## Test User Data
-Login: `steve.jobs@example.com`
-Password: `password`
+- Login: `steve.jobs@example.com`
+- Password: `password`
 
